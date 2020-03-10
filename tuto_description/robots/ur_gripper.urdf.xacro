@@ -9,7 +9,7 @@
   <xacro:property name="M_PI" value="3.14159"/>
 
   <!--components-->
-  <xacro:include filename="$(find ur_description)/urdf/ur5.urdf.xacro" />
+  <xacro:include filename="$(find ur_e_description)/urdf/ur5e.urdf.xacro" />
   <xacro:include filename="$(find robotiq_2f_85_gripper_visualization)/urdf/robotiq_arg2f_85_model_macro.xacro" />	
   <xacro:property name="base_x_size" value="0.76" />
   <xacro:property name="base_y_size" value="0.46" />
@@ -34,7 +34,7 @@
 
     <link name="real_ee_link"/>
 
-    <xacro:ur5_robot prefix="" joint_limited="false"/>
+    <xacro:ur5e_robot prefix="" joint_limited="false"/>
 
     <!-- gripper -->
     <xacro:if value="$(arg gripper_enabled)">  

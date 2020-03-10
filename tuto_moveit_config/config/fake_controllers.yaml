@@ -1,5 +1,8 @@
 controller_list:
-  - name: fake_tu_arm_controller
+  - name: fake_tuto_hand_controller
+    joints:
+      - finger_joint
+  - name: fake_tuto_arm_controller
     joints:
       - shoulder_pan_joint
       - shoulder_lift_joint
@@ -7,6 +10,3 @@ controller_list:
       - wrist_1_joint
       - wrist_2_joint
       - wrist_3_joint
-  - name: fake_tu_hand_controller
-    joints:
-      - finger_joint
