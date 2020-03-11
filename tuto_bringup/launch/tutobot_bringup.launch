@@ -1,18 +1,24 @@
-<?xml version="1.0"?>
-
 <launch>
- 
+  <arg name="rviz" value="true"/>
+
+  <include file="$(find tuto_bringup)/launch/tutobot_driver.launch">
+    <arg name="robot_ip" value="192.168.13.101"/>
+  </include>
+
+  <include file="$(find tuto_bringup)/launch/tutobot_gripper_bringup.launch"/>
+
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
   
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
     <rosparam param="source_list">["/ur5/joint_states", "/robotiq/joint_states"]</rosparam>
   </node>
-  
-  <!--include file="$(find ur_modern_driver)/launch/ur5_bringup.launch">
-    <remap from="/joint_states" to="/robotiq/joint_states"/>
-  </include-->
 
   <include file="$(find tuto_moveit_config)/launch/tuto_moveit_planning_execution.launch">
   </include>
+
+  <node if="$(arg rviz)" name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false"
+  args="-d $(find tuto_moveit_config)/launch/moveit.rviz" output="screen">
+    <rosparam command="load" file="$(find tuto_moveit_config)/config/kinematics.yaml"/>
+  </node>
 
 </launch>
