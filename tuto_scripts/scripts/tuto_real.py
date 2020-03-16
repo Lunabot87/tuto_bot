@@ -79,7 +79,7 @@ class MoveGroupPythonIntefaceTutorial(object):
     plane_name = "plane"
     scene.add_plane(plane_name, plane_pose)
 
-  def go_to_pose_goal(self):
+  def go_to_pose1_goal(self):
     move_group = self.move_group
 	
     current_pose = move_group.get_current_pose()
@@ -88,7 +88,7 @@ class MoveGroupPythonIntefaceTutorial(object):
 		
     pose_goal = geometry_msgs.msg.Pose()
     pose_goal = current_pose
-    pose_goal.pose.position.z = pose_goal.pose.position.z + 0.03
+    pose_goal.pose.position.z = pose_goal.pose.position.z - 0.03
     #pose_goal.orientation.x = -0.416775286733
     #pose_goal.orientation.y = 0.416893254906
     #pose_goal.orientation.z = 0.571252269954
@@ -106,7 +106,7 @@ class MoveGroupPythonIntefaceTutorial(object):
 
     plan = move_group.plan()
 
-    print "============ Press `Enter` to execute ..."
+    print "============ Press `Enter` to execute1 ..."
     raw_input()
 
     move_group.execute(plan)
@@ -122,6 +122,62 @@ class MoveGroupPythonIntefaceTutorial(object):
     touch_links = robot.get_link_names(group=grasping_group)
     scene.attach_box(eef_link, hold_item_name, touch_links=touch_links)
    
+  def go_to_pose2_goal(self):
+    move_group = self.move_group
+	
+    current_pose = move_group.get_current_pose()
+
+    print current_pose
+		
+    pose_goal = geometry_msgs.msg.Pose()
+    pose_goal = current_pose
+    pose_goal.pose.position.z = pose_goal.pose.position.z + 0.03
+
+    move_group.set_pose_target(pose_goal)
+
+    plan = move_group.plan()
+
+    print "============ Press `Enter` to execute2 ..."
+    raw_input()
+
+    move_group.execute(plan)
+		
+    pose_goal = geometry_msgs.msg.Pose()
+    pose_goal = current_pose
+    pose_goal.pose.position.z = pose_goal.pose.position.x + 0.05
+
+    move_group.set_pose_target(pose_goal)
+
+    plan = move_group.plan()
+
+    print "============ Press `Enter` to execute3 ..."
+    raw_input()
+
+    move_group.execute(plan)
+
+    pose_goal = geometry_msgs.msg.Pose()
+    pose_goal = current_pose
+    pose_goal.pose.position.z = pose_goal.pose.position.z - 0.03
+
+    move_group.set_pose_target(pose_goal)
+
+    plan = move_group.plan()
+
+    print "============ Press `Enter` to execute4 ..."
+    raw_input()
+
+    move_group.execute(plan)
+
+
+  def detach_box(self, timeout=4):
+    hold_item_name = 'item'
+    scene.remove_attached_object(eef_link, name=hold_item_name)
+
+  def remove_object(self):
+    hold_item_name = 'item'
+    scene.remove_world_object(hold_item_name)
+
+
 
 def main():
   try:
@@ -132,13 +188,27 @@ def main():
     raw_input()
     tutorial.add_box()
 
-    print "============ Press `Enter` to go_to_pose_goal ..."
+    print "============ Press `Enter` to go_to_pose1_goal ..."
     raw_input()
-    tutorial.go_to_pose_goal()
+    tutorial.go_to_pose1_goal()
 
     print "============ Press `Enter` to attach_box ..."
     raw_input()
     tutorial.attach_box()
+
+    print "============ Press `Enter` to go_to_pose2_goal ..."
+    raw_input()
+    tutorial.go_to_pose2_goal()
+
+    print "============ Press 'Enter' to dettach_box ..."
+    raw_input()
+    tutorial.detach_box()
+
+    print "============ Press 'Enter' to remove_object ..."
+    raw_input()
+    tutorial.remove_object()
+
+    
 
     print "============ Python tutorial demo complete!"
   except rospy.ROSInterruptException:
