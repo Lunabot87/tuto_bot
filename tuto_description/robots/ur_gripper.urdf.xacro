@@ -18,12 +18,20 @@
 
 
   <xacro:if value="$(arg ur_enabled)">
-    <link name="world" />
 
-    <joint name="virtual_joint" type="fixed">
-      <parent link="world" />
+    <link name="real_base_link" />
+
+    <joint name="real_base_joint" type="fixed">
+      <parent link="real_base_link" />
       <child link="base_link" />
-      <origin xyz="0 0.0 0.01" rpy="0.0 0.0 0.0" />
+      <origin xyz="0 0.0 0.0" rpy="0.0 0.0 ${M_PI}" />
+    </joint>
+
+    <link name="world"/>
+    <joint name="world_base_joint" type="fixed">
+      <parent link="world" />
+      <child link="real_base_link" />
+      <origin xyz="0 0.0 0.01" rpy="0.0 0.0 0" />
     </joint>
 
     <joint name="ur_real_ee_fixed_joint" type="fixed">

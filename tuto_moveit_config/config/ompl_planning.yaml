@@ -147,7 +147,7 @@ tuto_hand:
     - SPARS
     - SPARStwo
 tuto_arm:
-  default_planner_config: None
+  default_planner_config: RRTConnect
   planner_configs:
     - SBL
     - EST
@@ -172,5 +172,3 @@ tuto_arm:
     - LazyPRMstar
     - SPARS
     - SPARStwo
-  projection_evaluator: joints(shoulder_pan_joint,shoulder_lift_joint)
-  longest_valid_segment_fraction: 0.005

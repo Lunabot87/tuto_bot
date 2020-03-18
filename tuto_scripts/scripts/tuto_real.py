@@ -5,12 +5,12 @@ import copy
 import rospy
 import moveit_commander
 import moveit_msgs.msg
-import geometry_msgs.msg
+from geometry_msgs.msg import *
 from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
-from tf.transformations import quaternion_from_euler
-
+from tf.transformations import *
+#import basic_interactive
 
 
 
@@ -22,6 +22,8 @@ class MoveGroupPythonIntefaceTutorial(object):
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node('move_group_python_interface_tutorial',
                     anonymous=True)
+
+    rospy.Subscriber("marker_update", Pose, self.callback)
 
     scene = moveit_commander.PlanningSceneInterface()
     group_name = "tuto_arm"
@@ -39,37 +41,32 @@ class MoveGroupPythonIntefaceTutorial(object):
     self.eef_link = eef_link
     self.planning_frame = planning_frame
     self.group_names = group_names
+    self.marker_pose = Pose()
 
-  def add_box(self, timeout=4):
+
+    self.move_group.set_planner_id("RRTConnectkConfigDefault")
+    self.move_group.set_planning_time(5.0)
+    self.move_group.set_num_planning_attempts(10)
+    self.move_group.set_max_velocity_scaling_factor(0.05)        # 0.1
+    self.move_group.set_max_acceleration_scaling_factor(0.05)    # 0.1
+
+  def callback(self,pose):
+    self.marker_pose = pose
+
+  def add_box(self):
 
     box_name = ''
     table_name = ''
     hold_item_name = ''
     plane_name = ''
     scene = self.scene
+    move_group = self.move_group
 
-
-    # box_pose = geometry_msgs.msg.PoseStamped()
-    # box_pose.header.frame_id = "world"
-    # box_pose.pose.orientation.w = 1.0
-    # box_pose.pose.position.x = -0.6
-    # box_pose.pose.position.z = 0.25
-    # box_name = "box"
-    # scene.add_box(box_name, box_pose, size=(0.3, 0.5, 0.5))
-
-    # table_pose = geometry_msgs.msg.PoseStamped()
-    # table_pose.header.frame_id = "world"
-    # table_pose.pose.orientation.w = 1.0
-    # table_pose.pose.position.y = 0.6
-    # table_pose.pose.position.z = 0.25
-    # table_name = "table"
-    # scene.add_box(table_name, table_pose, size=(0.5, 0.3, 0.5))
+    current_pose = move_group.get_current_pose()
 
     hold_item_pose = geometry_msgs.msg.PoseStamped()
     hold_item_pose.header.frame_id = "world"
-    hold_item_pose.pose.orientation.w = 1.0
-    hold_item_pose.pose.position.y = 0.6
-    hold_item_pose.pose.position.z = 0.025
+    hold_item_pose.pose = self.marker_pose
     hold_item_name = "item"
     scene.add_box(hold_item_name, hold_item_pose, size=(0.05, 0.05, 0.05))
 
@@ -87,20 +84,22 @@ class MoveGroupPythonIntefaceTutorial(object):
     print current_pose
 		
     pose_goal = geometry_msgs.msg.Pose()
-    pose_goal = current_pose
-    pose_goal.pose.position.z = pose_goal.pose.position.z - 0.03
-    #pose_goal.orientation.x = -0.416775286733
-    #pose_goal.orientation.y = 0.416893254906
-    #pose_goal.orientation.z = 0.571252269954
-    #pose_goal.orientation.w = 0.571112264318
-    #pose_goal.position.x = -0.00
-    #pose_goal.position.y = 0.57
-    #pose_goal.position.z = 0.57
+
+    pose_goal = self.marker_pose
+    pose_goal.position.z += 0.3
+    euler = euler_from_quaternion([pose_goal.orientation.x,  pose_goal.orientation.y,  pose_goal.orientation.z, pose_goal.orientation.w])
+    quaternion = quaternion_from_euler(euler[0] + 3.1415, euler[1], euler[2])
+    pose_goal.orientation.x = quaternion[0]
+    pose_goal.orientation.y = quaternion[1]
+    pose_goal.orientation.z = quaternion[2]
+    pose_goal.orientation.w = quaternion[3]
 
 
-    quaternion = quaternion_from_euler(3.204, -0.103, 0.059)
+
+    
 
     print quaternion
+    print euler
 
     move_group.set_pose_target(pose_goal)
 
@@ -111,7 +110,7 @@ class MoveGroupPythonIntefaceTutorial(object):
 
     move_group.execute(plan)
 
-  def attach_box(self, timeout=4):
+  def attach_box(self):
     hold_item_name = 'item'
     robot = self.robot
     scene = self.scene
@@ -131,7 +130,7 @@ class MoveGroupPythonIntefaceTutorial(object):
 		
     pose_goal = geometry_msgs.msg.Pose()
     pose_goal = current_pose
-    pose_goal.pose.position.z = pose_goal.pose.position.z + 0.03
+    pose_goal.pose.position.z = pose_goal.pose.position.z + 0.1
 
     move_group.set_pose_target(pose_goal)
 
@@ -144,7 +143,7 @@ class MoveGroupPythonIntefaceTutorial(object):
 		
     pose_goal = geometry_msgs.msg.Pose()
     pose_goal = current_pose
-    pose_goal.pose.position.z = pose_goal.pose.position.x + 0.05
+    pose_goal.pose.position.x = pose_goal.pose.position.x - 0.08
 
     move_group.set_pose_target(pose_goal)
 
@@ -157,7 +156,7 @@ class MoveGroupPythonIntefaceTutorial(object):
 
     pose_goal = geometry_msgs.msg.Pose()
     pose_goal = current_pose
-    pose_goal.pose.position.z = pose_goal.pose.position.z - 0.03
+    pose_goal.pose.position.z = pose_goal.pose.position.z - 0.1
 
     move_group.set_pose_target(pose_goal)
 
@@ -170,12 +169,17 @@ class MoveGroupPythonIntefaceTutorial(object):
 
 
   def detach_box(self, timeout=4):
+    scene = self.scene
+    eef_link = self.eef_link
     hold_item_name = 'item'
     scene.remove_attached_object(eef_link, name=hold_item_name)
 
   def remove_object(self):
+    scene = self.scene
+    eef_link = self.eef_link
     hold_item_name = 'item'
     scene.remove_world_object(hold_item_name)
+
 
 
 
