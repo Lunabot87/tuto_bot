@@ -121,3 +121,26 @@ class ur5:
                     theta[i, j] = theta[i, j] + 2 * m.pi
 
         return theta
+
+
+def main():
+    test = ur5()
+
+    joint = [1.6395974159240723, -1.667276998559469, 1.726663891469137, 
+            -1.630484243432516, -1.4129460493670862, 4.622409820556641]
+
+    for i in joint:
+        print i*(180.0/(m.pi))
+
+
+    inv = test.fwd_kin(joint)
+
+    kin = test.inv_kin(inv)
+
+    print inv
+
+    print kin
+
+
+if __name__ == '__main__':
+    main()

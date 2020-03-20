@@ -10,6 +10,8 @@ from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
 from tf.transformations import *
+from ur5_inv_kin_wrapper import ur5_inv_kin_wrapper
+
 #import basic_interactive
 
 
@@ -34,6 +36,8 @@ class MoveGroupPythonIntefaceTutorial(object):
     eef_link = move_group.get_end_effector_link()
     group_names = robot.get_group_names()
 
+
+    self.ur5 = ur5_inv_kin_wrapper()
 
     self.scene = scene
     self.robot = robot
