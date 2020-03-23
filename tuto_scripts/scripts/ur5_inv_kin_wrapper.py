@@ -100,7 +100,7 @@ class ur5_inv_kin_wrapper(ur5):
                 diff += self.w[j] * (inv_sol[j][i] - cur_joint[j])**2 
             diffs.append(diff)
             inv_sol_diff.append({'joint': list(inv_sol[:, i]), 'diff': float(diff)})        
-        print('diff: {}'.format(diffs))
+        # print('diff: {}'.format(diffs))
 
         return inv_sol_diff
 
@@ -180,7 +180,7 @@ class ur5_inv_kin_wrapper(ur5):
         for i in range(8):
             for j in range(6):
                 inv_sol_sorted[j][i] = inv_sol_diff[i]['joint'][j]
-        print("inv " , inv_sol_sorted)
+        # print("inv " , inv_sol_sorted)
 
         self._get_state(inv_sol_sorted[:,self.num])
 
