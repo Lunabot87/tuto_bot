@@ -83,29 +83,45 @@ class MoveGroupPythonIntefaceTutorial(object):
   def go_to_pose1_goal(self):
     move_group = self.move_group
 	
-    current_pose = move_group.get_current_pose()
+    current_joint = move_group.get_current_joint_values()
 
-    print current_pose
+    print current_joint[1]
 		
     pose_goal = geometry_msgs.msg.Pose()
 
     pose_goal = self.marker_pose
-    pose_goal.position.z += 0.3
-    euler = euler_from_quaternion([pose_goal.orientation.x,  pose_goal.orientation.y,  pose_goal.orientation.z, pose_goal.orientation.w])
-    quaternion = quaternion_from_euler(euler[0] + 3.1415, euler[1], euler[2])
-    pose_goal.orientation.x = quaternion[0]
-    pose_goal.orientation.y = quaternion[1]
-    pose_goal.orientation.z = quaternion[2]
-    pose_goal.orientation.w = quaternion[3]
+
+    pose_xyz = [pose_goal.position.x, pose_goal.position.y, pose_goal.position.z]
+    pose_qut = [pose_goal.orientation.x,pose_goal.orientation.y,pose_goal.orientation.z, pose_goal.orientation.w]
+    # pose_goal.position.z += 0.3
+    # euler = euler_from_quaternion([pose_goal.orientation.x,  pose_goal.orientation.y,  pose_goal.orientation.z, pose_goal.orientation.w])
+    # quaternion = quaternion_from_euler(euler[0] + 3.1415, euler[1], euler[2])
+    # pose_goal.orientation.x = quaternion[0]
+    # pose_goal.orientation.y = quaternion[1]
+    # pose_goal.orientation.z = quaternion[2]
+    # pose_goal.orientation.w = quaternion[3]
+
+    pose_target = self.ur5.solve_and_sort(pose_xyz,pose_qut,current_joint,1)
+
+    print pose_target
+
+    move_group.clear_pose_targets()
 
 
+    joint_goal = move_group.get_current_joint_values()
 
-    
+    joint_goal[0] = pose_target[0]
+    joint_goal[1] = pose_target[1]
+    joint_goal[2] = pose_target[2]
+    joint_goal[3] = pose_target[3]
+    joint_goal[4] = pose_target[4]
+    joint_goal[5] = pose_target[5]
 
-    print quaternion
-    print euler
+    for aaa in joint_goal:
+        print aaa*(180/pi)
 
-    move_group.set_pose_target(pose_goal)
+
+    move_group.set_joint_value_target(joint_goal)
 
     plan = move_group.plan()
 

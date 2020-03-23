@@ -160,7 +160,7 @@ class ur5_inv_kin_wrapper(ur5):
         return inv_sol
 
 
-    def solve_and_sort(self, trans, rot, cur_joint):
+    def solve_and_sort(self, trans, rot, cur_joint, number):
         '''
         inv_sol, inv_sol_sorted : list of list [6x8]
         inv_sol_diff : list of dict {'joint':, 'diff'}x8
@@ -183,6 +183,10 @@ class ur5_inv_kin_wrapper(ur5):
         print("inv " , inv_sol_sorted)
 
         self._get_state(inv_sol_sorted[:,self.num])
+
+        return inv_sol_sorted[:,number]
+
+
 
 #        print('current', cur_joint)
 #        self._print_sol(inv_sol_sorted)
