@@ -94,7 +94,7 @@ class MoveGroupPythonIntefaceTutorial(object):
     print "qut : ", qut
     euler = euler_from_quaternion(qut)
     print "euler : ", euler
-    quater = quaternion_from_euler(euler[0]-pi,euler[1],euler[2]-pi)
+    quater = quaternion_from_euler(euler[0]-pi,euler[1],euler[2]-(pi/2))
 
     print "quater : ", quater
 
@@ -107,14 +107,14 @@ class MoveGroupPythonIntefaceTutorial(object):
 
     pose_goal = self.marker_pose
 
-    # pose_xyz = [pose_goal.position.x, -pose_goal.position.y, pose_goal.position.z + 0.3]
-    # pose_qut = self.object_tf([pose_goal.orientation.x,pose_goal.orientation.y,pose_goal.orientation.z,pose_goal.orientation.w])
+    pose_xyz = [-pose_goal.position.x, pose_goal.position.y, pose_goal.position.z + 0.3]
+    pose_qut = self.object_tf([pose_goal.orientation.x,pose_goal.orientation.y,pose_goal.orientation.z,pose_goal.orientation.w])
 
-    (pose_xyz, pose_qut) = self.listener.lookupTransform('/item1', '/real_ee_link', rospy.Time(0))
+    #(pose_xyz, pose_qut) = self.listener.lookupTransform('/item1', '/real_ee_link', rospy.Time(0))
 
 
 
-    pose_target = self.ur5.solve_and_sort([pose_xyz[0],-pose_xyz[1],pose_xyz[2]],pose_qut,current_joint,0)
+    pose_target = self.ur5.solve_and_sort([pose_xyz[0],pose_xyz[1],pose_xyz[2]],pose_qut,current_joint,0)
 
     print "pose_goal", pose_goal
 
