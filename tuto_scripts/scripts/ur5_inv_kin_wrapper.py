@@ -196,10 +196,11 @@ class ur5_inv_kin_wrapper(ur5):
 def main():
     rospy.init_node('ur5_inv_kin_wrapper')
     test = ur5_inv_kin_wrapper()
-    qut = quaternion_from_euler(3.141, 0.006, 0.006)
+    euler = euler_from_quaternion([-8.21497314618e-10, 2.41635600418e-10, 0.0243013501167,0.99970471859])
+    qut = quaternion_from_euler(euler[0]+(math.pi), euler[1], euler[2]+(math.pi))
 
     while not rospy.is_shutdown():
-        test.solve_and_sort([0.162,-0.247,0.311], qut, [1.217874526977539, -1.846309324304098, 2.0949328581439417, -2.162719865838522, -1.5716694037066858, 3.2526352405548096])
+        test.solve_and_sort([0.031963378191, -0.422017246485, 0.0250000003725+0.3], qut, [2.62791109085, -2.26733555416, 2.30529052416, -1.61844982723, -1.58032924334, -0.117445770894])
 
 #    rospy.spin()
       

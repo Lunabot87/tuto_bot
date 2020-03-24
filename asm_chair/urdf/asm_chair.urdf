@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.5.1-0-g916b5db  Build Version: 1.5.7152.31018
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="asm_chair">
+  <link
+    name="plate">
+    <inertial>
+      <origin
+        xyz="-2.53939706223863E-07 0.283950000768685 -0.136451023468744"
+        rpy="0 0 0" />
+      <mass
+        value="1.04902962059995" />
+      <inertia
+        ixx="0.0070390480162102"
+        ixy="-6.00733622444971E-12"
+        ixz="1.71120236615953E-08"
+        iyy="0.0132744059208606"
+        iyz="-8.24584133012518E-11"
+        izz="0.00626791475667077" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/plate.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/plate.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="support_front">
+    <inertial>
+      <origin
+        xyz="0 6.3805E-05 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.17814" />
+      <inertia
+        ixx="3.6054E-05"
+        ixy="0"
+        ixz="0"
+        iyy="0.00060901"
+        iyz="0"
+        izz="0.00063308" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/support_front.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/support_front.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="plate_to_support_front"
+    type="fixed">
+    <origin
+      xyz="0 0.257 0.2545"
+      rpy="1.5708 0 0" />
+    <parent
+      link="plate" />
+    <child
+      link="support_front" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="support_back">
+    <inertial>
+      <origin
+        xyz="0 6.3805E-05 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.17814" />
+      <inertia
+        ixx="3.6054E-05"
+        ixy="0"
+        ixz="0"
+        iyy="0.00060901"
+        iyz="0"
+        izz="0.00063308" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/support_back.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/support_back.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="plate_to_support_back"
+    type="fixed">
+    <origin
+      xyz="0 0 0.2545"
+      rpy="1.5708 0 0" />
+    <parent
+      link="plate" />
+    <child
+      link="support_back" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="right_part">
+    <inertial>
+      <origin
+        xyz="-0.00031384 -0.043781 0.02811"
+        rpy="0 0 0" />
+      <mass
+        value="1.0295" />
+      <inertia
+        ixx="0.030678"
+        ixy="1.4551E-07"
+        ixz="3.8887E-06"
+        iyy="0.012476"
+        iyz="-0.0055851"
+        izz="0.018329" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/right_part.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/right_part.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="plate_to_right_part"
+    type="fixed">
+    <origin
+      xyz="0.1155 0.1285 0.2545"
+      rpy="1.5708 0 0" />
+    <parent
+      link="plate" />
+    <child
+      link="right_part" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="r_up_pin">
+    <inertial>
+      <origin
+        xyz="0 0 -0.015"
+        rpy="0 0 0" />
+      <mass
+        value="0.0015334" />
+      <inertia
+        ixx="1.1446E-07"
+        ixy="0"
+        ixz="0"
+        iyy="1.1446E-07"
+        iyz="0"
+        izz="1.2638E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/r_up_pin.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/r_up_pin.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_part_to_up_pin"
+    type="continuous">
+    <origin
+      xyz="-0.0025 0.1915 0.1285"
+      rpy="-1.5708 -1.061 -1.5708" />
+    <parent
+      link="right_part" />
+    <child
+      link="r_up_pin" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="back_plate">
+    <inertial>
+      <origin
+        xyz="0 -0.0045447 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.65503" />
+      <inertia
+        ixx="0.0015403"
+        ixy="-1.9999E-18"
+        ixz="0"
+        iyy="0.0020747"
+        iyz="0"
+        izz="0.0035711" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/back_plate.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/back_plate.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="r_up_pin_to_back_plate"
+    type="fixed">
+    <origin
+      xyz="-0.0085394 -0.015275 -0.113"
+      rpy="0.50976 -1.5708 0" />
+    <parent
+      link="r_up_pin" />
+    <child
+      link="back_plate" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="r_down_pin">
+    <inertial>
+      <origin
+        xyz="0 0 -0.015"
+        rpy="0 0 0" />
+      <mass
+        value="0.0015334" />
+      <inertia
+        ixx="1.1446E-07"
+        ixy="0"
+        ixz="0"
+        iyy="1.1446E-07"
+        iyz="0"
+        izz="1.2638E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/r_down_pin.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/r_down_pin.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_part_to_down_pin"
+    type="continuous">
+    <origin
+      xyz="-0.0025 0.1615 0.1285"
+      rpy="1.5708 0.85034 1.5708" />
+    <parent
+      link="right_part" />
+    <child
+      link="r_down_pin" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="left_part">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="0" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/left_part.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/left_part.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="plate_to_left_part"
+    type="fixed">
+    <origin
+      xyz="-0.1155 0.1285 0.2545"
+      rpy="1.5708 0 0" />
+    <parent
+      link="plate" />
+    <child
+      link="left_part" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="l_up_pin">
+    <inertial>
+      <origin
+        xyz="0 0 0.015"
+        rpy="0 0 0" />
+      <mass
+        value="0.0015334" />
+      <inertia
+        ixx="1.1446E-07"
+        ixy="0"
+        ixz="0"
+        iyy="1.1446E-07"
+        iyz="0"
+        izz="1.2638E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/l_up_pin.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/l_up_pin.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_part_to_up_pin"
+    type="continuous">
+    <origin
+      xyz="0.0025 0.1915 0.1285"
+      rpy="-1.5708 -1.2817 -1.5708" />
+    <parent
+      link="left_part" />
+    <child
+      link="l_up_pin" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="l_down_pin">
+    <inertial>
+      <origin
+        xyz="0 0 0.015"
+        rpy="0 0 0" />
+      <mass
+        value="0.0015334" />
+      <inertia
+        ixx="1.1446E-07"
+        ixy="0"
+        ixz="0"
+        iyy="1.1446E-07"
+        iyz="0"
+        izz="1.2638E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/l_down_pin.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://asm_chair/meshes/l_down_pin.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_part_to_down_pin"
+    type="continuous">
+    <origin
+      xyz="0.0025 0.1615 0.1285"
+      rpy="1.5708 1.3752 1.5708" />
+    <parent
+      link="left_part" />
+    <child
+      link="l_down_pin" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+</robot>

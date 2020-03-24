@@ -10,6 +10,7 @@ from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
 from tf.transformations import *
+from tf import *
 from ur5_inv_kin_wrapper import ur5_inv_kin_wrapper
 
 #import basic_interactive
@@ -38,6 +39,8 @@ class MoveGroupPythonIntefaceTutorial(object):
 
 
     self.ur5 = ur5_inv_kin_wrapper()
+    self.br = TransformBroadcaster()
+    self.listener = TransformListener()
 
     self.scene = scene
     self.robot = robot
@@ -69,16 +72,33 @@ class MoveGroupPythonIntefaceTutorial(object):
     current_pose = move_group.get_current_pose()
 
     hold_item_pose = geometry_msgs.msg.PoseStamped()
-    hold_item_pose.header.frame_id = "world"
+    hold_item_pose.header.frame_id = "table"
     hold_item_pose.pose = self.marker_pose
-    hold_item_name = "item"
-    scene.add_box(hold_item_name, hold_item_pose, size=(0.05, 0.05, 0.05))
+    hold_item_name = "item1"
+    scene.add_mesh(hold_item_name, hold_item_pose, '/home/care/catkin_ws/src/tuto_bot/tuto_scripts/stl/support_front.STL')
+    self.br.sendTransform((self.marker_pose.position.x,self.marker_pose.position.y,self.marker_pose.position.z+0.8),
+                         (self.marker_pose.orientation.x, self.marker_pose.orientation.y, self.marker_pose.orientation.z, self.marker_pose.orientation.w),
+                         rospy.Time.now(),
+                         "item1",
+                         "world")
+ 
 
     plane_pose = geometry_msgs.msg.PoseStamped()
     plane_pose.header.frame_id = "world"
     plane_pose.pose.orientation.w = 1.0
     plane_name = "plane"
     scene.add_plane(plane_name, plane_pose)
+
+
+  def object_tf(self, qut):
+    print "qut : ", qut
+    euler = euler_from_quaternion(qut)
+    print "euler : ", euler
+    quater = quaternion_from_euler(euler[0]-pi,euler[1],euler[2]-pi)
+
+    print "quater : ", quater
+
+    return quater
 
   def go_to_pose1_goal(self):
     move_group = self.move_group
@@ -87,15 +107,17 @@ class MoveGroupPythonIntefaceTutorial(object):
 
     pose_goal = self.marker_pose
 
+    # pose_xyz = [pose_goal.position.x, -pose_goal.position.y, pose_goal.position.z + 0.3]
+    # pose_qut = self.object_tf([pose_goal.orientation.x,pose_goal.orientation.y,pose_goal.orientation.z,pose_goal.orientation.w])
 
-    pose_xyz = [pose_goal.position.x, pose_goal.position.y, pose_goal.position.z]
-    pose_qut = [pose_goal.orientation.x,pose_goal.orientation.y,pose_goal.orientation.z, pose_goal.orientation.w]
+    (pose_xyz, pose_qut) = self.listener.lookupTransform('/item1', '/real_ee_link', rospy.Time(0))
 
 
 
-    pose_target = self.ur5.solve_and_sort(pose_xyz,pose_qut,current_joint,)
+    pose_target = self.ur5.solve_and_sort([pose_xyz[0],-pose_xyz[1],pose_xyz[2]],pose_qut,current_joint,0)
 
-    print pose_target
+    print "pose_goal", pose_goal
+
 
     move_group.clear_pose_targets()
 

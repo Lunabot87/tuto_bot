@@ -1,0 +1,190 @@
+<?xml version="1.0"?>
+
+<robot name="tuto_bot" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!--config-->
+  <xacro:arg name="ur_enabled" default="true"/>
+  <xacro:arg name="gripper_enabled" default="true"/>
+
+  <xacro:property name="M_PI" value="3.14159"/>
+
+  <!--components-->
+  <xacro:include filename="$(find ur_e_description)/urdf/ur5e.urdf.xacro" />
+  <xacro:include filename="$(find robotiq_2f_85_gripper_visualization)/urdf/robotiq_arg2f_85_model_macro.xacro" />	
+  <xacro:property name="base_x_size" value="0.76" />
+  <xacro:property name="base_y_size" value="0.46" />
+  <xacro:property name="base_z_size" value="0.55" />
+
+
+
+  <xacro:if value="$(arg ur_enabled)">
+
+    <link name="bar1">
+       <visual>
+         <origin xyz="0 0 0" rpy="0 0 0" />
+         <geometry>
+           <box size="0.03 0.03 1.5" />
+         </geometry>
+         <material name="bar1">
+           <color rgba="0 0.5 0 1.0"/>
+         </material>
+       </visual>
+
+       <collision>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+           <box size="0.03 0.03 1.5"/>
+         </geometry>
+       </collision>
+     </link>
+
+     <link name="bar2">
+       <visual>
+         <origin xyz="0 0 0" rpy="0 0 0" />
+         <geometry>
+           <box size="0.03 0.03 1.5" />
+         </geometry>
+         <material name="bar2">
+           <color rgba="0 0.5 0 1.0"/>
+         </material>
+       </visual>
+
+       <collision>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+           <box size="0.03 0.03 1.5"/>
+         </geometry>
+       </collision>
+     </link>
+
+     <link name="bar3">
+       <visual>
+         <origin xyz="0 0 0" rpy="0 0 0" />
+         <geometry>
+           <box size="0.03 0.03 1.5" />
+         </geometry>
+         <material name="bar3">
+           <color rgba="0 0.5 0 1.0"/>
+         </material>
+       </visual>
+
+       <collision>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+           <box size="0.03 0.03 1.5"/>
+         </geometry>
+       </collision>
+     </link>
+
+     <link name="bar4">
+       <visual>
+         <origin xyz="0 0 0" rpy="0 0 0" />
+         <geometry>
+           <box size="0.03 0.03 1.5" />
+         </geometry>
+         <material name="bar4">
+           <color rgba="0 0.5 0 1.0"/>
+         </material>
+       </visual>
+
+       <collision>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+           <box size="0.03 0.03 1.5"/>
+         </geometry>
+       </collision>
+     </link>
+
+
+
+    <link name="table">
+       <visual>
+         <origin xyz="0 0 -0.4" rpy="0 0 0" />
+         <geometry>
+           <box size="1.2 2 0.8" />
+         </geometry>
+         <material name="table">
+           <color rgba="0 0.5 0 1.0"/>
+         </material>
+       </visual>
+
+       <collision>
+         <origin xyz="0 0 -0.4" rpy="0 0 0"/>
+         <geometry>
+           <box size="1.2 2 0.8"/>
+         </geometry>
+       </collision>
+     </link>
+
+
+    <joint name="table_bar1" type="fixed">
+      <parent link="table" />
+      <child link="bar1" />
+      <origin xyz="0.585 0.985 0.75" rpy="0.0 0.0 0" />
+    </joint>
+
+    <joint name="table_bar2" type="fixed">
+      <parent link="table" />
+      <child link="bar2" />
+      <origin xyz="-0.585 0.985 0.75" rpy="0.0 0.0 0" />
+    </joint>
+
+    <joint name="table_bar3" type="fixed">
+      <parent link="table" />
+      <child link="bar3" />
+      <origin xyz="0.585 -0.985 0.75" rpy="0.0 0.0 0" />
+    </joint>
+
+    <joint name="table_bar4" type="fixed">
+      <parent link="table" />
+      <child link="bar4" />
+      <origin xyz="-0.585 -0.985 0.75" rpy="0.0 0.0 0" />
+    </joint>
+
+    <link name="real_base_link" />
+
+    <joint name="real_base_joint" type="fixed">
+      <parent link="real_base_link" />
+      <child link="base_link" />
+      <origin xyz="0 0.0 0.0" rpy="0.0 0.0 ${M_PI}" />
+    </joint>
+
+    <joint name="table_base_joint" type="fixed">
+      <parent link="table" />
+      <child link="real_base_link" />
+      <origin xyz="0 0.76 0.01" rpy="0.0 0.0 0" />
+    </joint>
+
+
+    <link name="world"/>
+
+    <joint name="world_table" type="fixed">
+      <parent link="world" />
+      <child link="table" />
+      <origin xyz="0 0.0 0.8" rpy="0.0 0.0 0" />
+    </joint>
+
+    <joint name="ur_real_ee_fixed_joint" type="fixed">
+      <parent link="ee_link" />
+      <child link="real_ee_link" />
+      <origin xyz="0.0 0.0 0.0" rpy="-${M_PI/2} 0.0 -${M_PI/2}" />
+    </joint>
+
+    <link name="real_ee_link"/>
+
+    <xacro:ur5e_robot prefix="" joint_limited="false"/>
+
+    <!-- gripper -->
+    <xacro:if value="$(arg gripper_enabled)">  
+
+      <joint name="ur_gripper_fixed_joint" type="fixed">
+        <parent link="tool0"/>
+        <child link="robotiq_arg2f_base_link"/>
+        <origin xyz="0 0 0" rpy="0 0 -${M_PI/2}"/>
+      </joint>
+
+      <xacro:robotiq_arg2f_85 prefix=""/>
+    </xacro:if>
+  </xacro:if>
+
+</robot>

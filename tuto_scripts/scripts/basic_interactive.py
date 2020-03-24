@@ -78,7 +78,7 @@ def saveMarker( int_marker ):
 
 def make6DofMarker( fixed, interaction_mode, position, show_6dof = False):
     int_marker = InteractiveMarker()
-    int_marker.header.frame_id = "world"
+    int_marker.header.frame_id = "table"
     int_marker.pose.position = position
     int_marker.scale = 1
 
@@ -189,7 +189,7 @@ if __name__=="__main__":
   
     r = rospy.Rate(10)
     
-    position = Point( 0, -0.4, 0.025)
+    position = Point( 0, 0, 0.025)
     make6DofMarker( False, InteractiveMarkerControl.MOVE_ROTATE_3D, position, True )
     
     server.applyChanges()
