@@ -78,8 +78,9 @@ class MoveGroupPythonIntefaceTutorial(object):
     hold_item_pose.header.frame_id = "table"
     hold_item_pose.pose = self.marker_pose
     hold_item_name = "item1"
+    ## change your path/tuto_bot/tuto_scripts/stl/support_front.STL
     scene.add_mesh(hold_item_name, hold_item_pose, "/home/care/catkin_ws/src/tuto_bot/tuto_scripts/stl/support_front.STL")
-    
+
     ##
     self.br.sendTransform((self.marker_pose.position.x,self.marker_pose.position.y,self.marker_pose.position.z+0.8),
                          (self.marker_pose.orientation.x, self.marker_pose.orientation.y, self.marker_pose.orientation.z, self.marker_pose.orientation.w),
@@ -95,36 +96,69 @@ class MoveGroupPythonIntefaceTutorial(object):
     scene.add_plane(plane_name, plane_pose)
 
 
-  def object_tf(self, pose, x_offset = 0, y_offset = 0, z_offset = 0):
+  def object_pose(self, pose, x_offset = 0, y_offset = 0, z_offset = 0):
 
-    xyz = [pose.position.x + x_offset, pose.position.y + y_offset, pose.position.z + z_offset]
+    xyz = [pose[0] + x_offset, pose[1] + y_offset, pose[2] + z_offset]
+
+    return xyz
+
+
+  def object_rot(self, pose):
 
     # print "qut : ", qut
-    euler = euler_from_quaternion([pose.orientation.x,pose.orientation.y,pose.orientation.z,pose.orientation.w])
+    euler = euler_from_quaternion([pose[0],pose[1],pose[2],pose[3]])
     # print "euler : ", euler
-    quater = quaternion_from_euler(euler[0]-pi,euler[1],euler[2]-(pi/2))
+    quater = quaternion_from_euler(euler[0]-pi,euler[1],euler[2]-pi)
 
-    # print "quater : ", quater
-
-    return xyz, quater
+    return quater
 
   def go_to_pose_goal(self, target , x_offset = 0, y_offset = 0, z_offset = 0, pose = True, num = 0):
     move_group = self.move_group
     
     current_joint = move_group.get_current_joint_values()
+    current_pose = move_group.get_current_pose()
+    planning_frame = move_group.get_planning_frame()
 
-    pose_xyz, pose_qut = self.object_tf(self.marker_pose, x_offset = x_offset, y_offset = y_offset, z_offset = z_offset)
+    #pose_xyz, pose_qut = self.object_tf(self.marker_pose, x_offset = x_offset, y_offset = y_offset, z_offset = z_offset)
 
-    #(pose_xyz, pose_qut) = self.listener.lookupTransform('/item1', '/real_ee_link', rospy.Time(0))
+    (pose_xyz, pose_qut) = self.listener.lookupTransform('/real_base_link', '/item1', rospy.Time(0))
+
+    pose_xyz = self.object_pose(pose_xyz, z_offset = 0.3)
+
+    pose_qut = self.object_rot(pose_qut)
+
+    self.br.sendTransform(pose_xyz, pose_qut,
+                         rospy.Time.now(),
+                         "target",
+                         "real_base_link"
+                         )
 
     move_group.clear_pose_targets()
 
     if pose is not True:
 
-        print pose_xyz
-        print self.marker_pose
+        print "xyz : ", pose_xyz
+        print "qut : ", pose_qut
+
+        gen = [0.11364, -0.24391, 0.660]
+        for l in range(3):
+            print pose_xyz[l] - gen[l] 
+
+        print "current joint : ", current_joint
+        print "current pose : "
+
+        for aaa in current_joint:
+             print aaa*(180/pi)
+
+        print "planning_frame : ", planning_frame
 
         pose_target = self.ur5.solve_and_sort([pose_xyz[0],pose_xyz[1],pose_xyz[2]],pose_qut,current_joint, num)
+
+        print "target joint : ", pose_target
+
+        # for i in range(8):
+        #     print "unm %d", i
+        #     print self.ur5.solve_and_sort([pose_xyz[0],pose_xyz[1],pose_xyz[2]],pose_qut,current_joint, i)
 
         joint_goal = move_group.get_current_joint_values()
 
@@ -188,7 +222,7 @@ def main():
 
     print "============ Press `Enter` to go_to_pose1_goal ..."
     raw_input()
-    tutorial.go_to_pose_goal(tutorial.marker_pose, z_offset = 0.3, pose = False)
+    tutorial.go_to_pose_goal(tutorial.marker_pose, z_offset = 0.3, pose = False, num = 0)
     
 
     print "============ Python tutorial demo complete!"

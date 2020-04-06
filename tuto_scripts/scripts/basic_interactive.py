@@ -22,7 +22,7 @@ last_marker = None
 def frameCallback( msg ):
     global counter, br
     time = rospy.Time.now()
-    br.sendTransform( (0, 0, sin(counter/140.0)*2.0), (0, 0, 0, 1.0), time, "item", "moving_frame" )
+    br.sendTransform( (0, 0, sin(counter/140.0)*2.0), (0, 0, 0, 1.0), time, "item", "table" )
     counter += 1
 
 def processFeedback( feedback ):
@@ -80,7 +80,7 @@ def make6DofMarker( fixed, interaction_mode, position, show_6dof = False):
     int_marker = InteractiveMarker()
     int_marker.header.frame_id = "table"
     int_marker.pose.position = position
-    int_marker.scale = 1
+    int_marker.scale = 0.1
 
     int_marker.name = "item"
 #    int_marker.description = "Simple 6-DOF Control"

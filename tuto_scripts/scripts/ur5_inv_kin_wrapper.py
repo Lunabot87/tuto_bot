@@ -50,6 +50,7 @@ class ur5_inv_kin_wrapper(ur5):
         self.aco = None
         self.num = 0
 
+        self.check = False
 
     def cb(self, data):
         self.num = data.data
@@ -148,8 +149,14 @@ class ur5_inv_kin_wrapper(ur5):
         rot_mat = tf.transformations.quaternion_matrix(rot)
         pose_mat = tf.transformations.concatenate_matrices(trans_mat, rot_mat)
 
-        pose_mat = self._convert_base_axis(pose_mat)
+        #pose_mat = self._convert_base_axis(pose_mat)
         return pose_mat
+
+    def _mat_to_tf(self, mat):
+        trans = tf.transformations.translation_from_matrix(mat)
+        rot = tf.transformations.quaternion_from_matrix(mat)
+
+        return trans, rot
 
 
     def _solve(self, trans, rot):
@@ -184,6 +191,14 @@ class ur5_inv_kin_wrapper(ur5):
 
         self._get_state(inv_sol_sorted[:,self.num])
 
+        if self.check is False: 
+            for i in range(8):
+                print inv_sol_sorted[:,i]
+            print "fwd : " ,self.fwd_kin([1.4482526779174805, -1.947479864160055, 1.3266471068011683, -0.6487983030131836, -1.4786232153521937, -0.3078835646258753])
+            self.check = True
+
+
+
         return inv_sol_sorted[:,number]
 
 
@@ -196,11 +211,19 @@ class ur5_inv_kin_wrapper(ur5):
 def main():
     rospy.init_node('ur5_inv_kin_wrapper')
     test = ur5_inv_kin_wrapper()
-    euler = euler_from_quaternion([-8.21497314618e-10, 2.41635600418e-10, 0.0243013501167,0.99970471859])
-    qut = quaternion_from_euler(euler[0]+(math.pi), euler[1], euler[2]+(math.pi))
+    #euler = euler_from_quaternion([-8.21497314618e-10, 2.41635600418e-10, 0.0243013501167,0.99970471859])
+    #qut = quaternion_from_euler(euler[0]+(math.pi), euler[1], euler[2]+(math.pi))
+    print "xyz : ", 0.114, -0.244, 0.661," put : " ,-0.085, 0.984, 0.137, 0.077
+    print "current joint : ", 1.4482526779174805, -1.947479864160055, 1.3266471068011683, -0.6487983030131836, -1.4786232153521937, -0.3078835646258753
 
+    data = [[-0.97401093, -0.18723551,  0.1274581,   0.08788152],[-0.14541399,  0.94835788,  0.28190797, -0.24135553],[-0.17365908,  0.25604725, -0.9509376,   0.60620043],[ 0  ,        0 ,         0          ,1,        ]]
+    current = [1.4482526779174805, -1.947479864160055, 1.3266471068011683, -0.6487983030131836, -1.4786232153521937, -0.3078835646258753]
     while not rospy.is_shutdown():
-        test.solve_and_sort([0.031963378191, -0.422017246485, 0.0250000003725+0.3], qut, [2.62791109085, -2.26733555416, 2.30529052416, -1.61844982723, -1.58032924334, -0.117445770894])
+        #test.solve_and_sort([0.114, -0.244, 0.661], [-0.085, 0.984, 0.137, 0.077], current)
+        #tr, qu = test._mat_to_tf(data)
+        test.solve_and_sort([0.114200395315
+, -0.24393, 0.66087], [-0.0844945070328, 0.984033774728, 0.136684013076, 0.0765224741216], current)
+
 
 #    rospy.spin()
       
