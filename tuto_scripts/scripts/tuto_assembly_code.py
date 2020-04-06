@@ -152,7 +152,8 @@ class MoveGroupPythonIntefaceTutorial(object):
 
         print "planning_frame : ", planning_frame
 
-        pose_target = self.ur5.solve_and_sort([pose_xyz[0],pose_xyz[1],pose_xyz[2]],pose_qut,current_joint, num)
+        pose_target_list = self.ur5.solve_and_sort([pose_xyz[0],pose_xyz[1],pose_xyz[2]],pose_qut,current_joint)
+        pose_target = pose_target_list[:,num]
 
         print "target joint : ", pose_target
 

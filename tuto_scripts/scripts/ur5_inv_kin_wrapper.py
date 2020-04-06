@@ -167,7 +167,7 @@ class ur5_inv_kin_wrapper(ur5):
         return inv_sol
 
 
-    def solve_and_sort(self, trans, rot, cur_joint, number):
+    def solve_and_sort(self, trans, rot, cur_joint):
         '''
         inv_sol, inv_sol_sorted : list of list [6x8]
         inv_sol_diff : list of dict {'joint':, 'diff'}x8
@@ -189,17 +189,17 @@ class ur5_inv_kin_wrapper(ur5):
                 inv_sol_sorted[j][i] = inv_sol_diff[i]['joint'][j]
         # print("inv " , inv_sol_sorted)
 
-        self._get_state(inv_sol_sorted[:,self.num])
+        # self._get_state(inv_sol_sorted[:,self.num])
 
-        if self.check is False: 
-            for i in range(8):
-                print inv_sol_sorted[:,i]
-            print "fwd : " ,self.fwd_kin([1.4482526779174805, -1.947479864160055, 1.3266471068011683, -0.6487983030131836, -1.4786232153521937, -0.3078835646258753])
-            self.check = True
+        # if self.check is False: 
+        #     for i in range(8):
+        #         print inv_sol_sorted[:,i]
+        #     print "fwd : " ,self.fwd_kin([1.4482526779174805, -1.947479864160055, 1.3266471068011683, -0.6487983030131836, -1.4786232153521937, -0.3078835646258753])
+        #     self.check = True
 
 
 
-        return inv_sol_sorted[:,number]
+        return inv_sol_sorted
 
 
 
