@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import sys
-import copy
 import rospy
 import moveit_commander
 import moveit_msgs.msg
@@ -97,20 +96,20 @@ class Add_scene_chair(object):
 
         item = geometry_msgs.msg.PoseStamped()
         item.header.frame_id = "table"
-        item.pose = self.marker_pose if select == 'y' else self.euler2Pose(pose)
-        print item
+        item.pose = self.marker_pose if select is 'y' else self.euler2Pose(pose)
         item_name = name
     
         self.scene.add_mesh(item_name, item, PATH+name+".STL")
 
         self.sendTF(child = name, pose = item.pose)
- 
 
     plane_pose = geometry_msgs.msg.PoseStamped()
-    plane_pose.header.frame_id = "world"
+    plane_pose.header.frame_id = "table"
     plane_pose.pose.orientation.w = 1.0
     plane_name = "plane"
     self.scene.add_plane(plane_name, plane_pose)
+
+    print "Init part pose success"
 
     rospy.spin()
 
