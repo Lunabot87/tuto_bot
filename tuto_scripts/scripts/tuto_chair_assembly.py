@@ -34,8 +34,8 @@ class tuto_chair_assembly(object):
     robot = moveit_commander.RobotCommander()
 
     planning_frame = move_group.get_planning_frame()
-    # eef_link = move_group.get_end_effector_link()
-    # group_names = robot.get_group_names()
+    eef_link = move_group.get_end_effector_link()
+    group_names = robot.get_group_names()
 
     rospy.Subscriber("go2pose_execute", Bool, self.go2pose_executeCB)
     rospy.Subscriber("path_update", Int16, self.path_updateCB)
@@ -48,12 +48,13 @@ class tuto_chair_assembly(object):
     self.scene = scene
     self.robot = robot
     self.move_group = move_group
-    # self.eef_link = eef_link
-    # self.group_names = group_names
+    self.eef_link = eef_link
+    self.group_names = group_names
     self.plan = None
     self.pose_target_list = None
     self.pose_xyz = None
     self.pose_qut = None
+    self.number = 0
 
     self.move_group.set_planner_id("RRTConnectkConfigDefault")
     self.move_group.set_planning_time(5.0)
@@ -61,11 +62,11 @@ class tuto_chair_assembly(object):
     self.move_group.set_max_velocity_scaling_factor(0.05)        # 0.1
     self.move_group.set_max_acceleration_scaling_factor(0.05)    # 0.1
 
-  def go2pose_executeCB(self):
-    self.move_group.execute(plan)
+  def go2pose_executeCB(self,data):
+    self.move_group.execute(self.plan)
 
   def path_updateCB(self, num):
-    self.joint_target(num)
+    self.joint_target(num.data)
 
   def go2poseCB(self,target):
     self.go2pose_plan(target)
@@ -87,12 +88,36 @@ class tuto_chair_assembly(object):
     return quater
 
 
+  def quter2euler(self,target):
+    xyz = [target.pose[0] + target.x_offset, target.pose[1] + target.y_offset, target.pose[2] + target.z_offset]
+    qut = quaternion_from_euler(target.pose[3], target.pose[4], target.pose[5])
+    
+    print xyz
+    print qut
+
+    return xyz, qut
+
+
+
   def go2pose_plan(self, target): #, object_name , x_offset = 0, y_offset = 0, z_offset = 0, pose = True, num = 0):
     
     current_joint = self.move_group.get_current_joint_values()
     current_pose = self.move_group.get_current_pose()
+    planning_frame = self.move_group.get_planning_frame()
 
     #pose_xyz, pose_qut = self.object_tf(self.marker_pose, x_offset = x_offset, y_offset = y_offset, z_offset = z_offset)
+
+    # if target.name is not '':
+
+    #     (temp_xyz, temp_qut) = self.listener.lookupTransform('/real_base_link', target.name, rospy.Time(0))
+
+    #     self.pose_xyz = self.object_pose(temp_xyz, z_offset = target.z_offset)
+
+    #     self.pose_qut = self.object_rot(temp_qut)
+
+    # else:
+    #     self.pose_xyz, self.pose_qut = self.quter2euler(target)
+
 
     (temp_xyz, temp_qut) = self.listener.lookupTransform('/real_base_link', target.name, rospy.Time(0))
 
@@ -100,18 +125,21 @@ class tuto_chair_assembly(object):
 
     self.pose_qut = self.object_rot(temp_qut)
 
-    self.br.sendTransform(pose_xyz, pose_qut,
-                         rospy.Time.now(),
-                         target.name,
-                         "real_base_link"
-                         )
+
+
+    # self.br.sendTransform(pose_xyz, pose_qut,
+    #                      rospy.Time.now(),
+    #                      target.name,
+    #                      "real_base_link"
+    #                      )
 
     self.move_group.clear_pose_targets()
 
-    self.pose_target_list = self.ur5.solve_and_sort([pose_xyz[0],pose_xyz[1],pose_xyz[2]],pose_qut,current_joint)
+    self.pose_target_list = self.ur5.solve_and_sort([self.pose_xyz[0],self.pose_xyz[1],self.pose_xyz[2]],self.pose_qut,current_joint)
 
+    print self.pose_target_list[:,self.number]
 
-    joint_target(num) if target.pose is not True else pose_target()
+    self.joint_target(self.number) if target.pose_select is not True else self.pose_target()
 
   def joint_target(self,num):
 
@@ -154,13 +182,15 @@ def main():
     ttarget = target()
 
     ttarget.pose = PART_EULER_POSE[0]
-    ttarget.name = PART_NAME[0]
+    ttarget.name = "support_front"
     ttarget.z_offset = 0.3
-    ttarget.pose = False
+    ttarget.pose_select = False
     ttarget.num = 0
 
 
     tutorial = tuto_chair_assembly()
+    print "============ Press `Enter` to go_to_pose1_goal ..."
+    raw_input()
 
     tutorial.go2pose_plan(ttarget)
 

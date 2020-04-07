@@ -1,0 +1,8 @@
+<launch>
+
+  <node name="chair_update_node" pkg="tuto_scripts" type="tuto_add_chair_part.py"/>
+
+  <node name="tuto_chair_assembly" pkg="tuto_scripts" type="tuto_chair_assembly.py"/>
+
+
+</launch>

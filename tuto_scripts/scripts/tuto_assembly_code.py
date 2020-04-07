@@ -121,7 +121,7 @@ class MoveGroupPythonIntefaceTutorial(object):
 
     #pose_xyz, pose_qut = self.object_tf(self.marker_pose, x_offset = x_offset, y_offset = y_offset, z_offset = z_offset)
 
-    (pose_xyz, pose_qut) = self.listener.lookupTransform('/real_base_link', '/item1', rospy.Time(0))
+    (pose_xyz, pose_qut) = self.listener.lookupTransform('/real_base_link', '/support_front', rospy.Time(0))
 
     pose_xyz = self.object_pose(pose_xyz, z_offset = 0.3)
 
@@ -217,13 +217,13 @@ def main():
     tutorial = MoveGroupPythonIntefaceTutorial()
 
 
-    print "============ Press `Enter` to add a box to the planning scene ..."
-    raw_input()
-    tutorial.add_box()
+    # print "============ Press `Enter` to add a box to the planning scene ..."
+    # raw_input()
+    # tutorial.add_box()
 
     print "============ Press `Enter` to go_to_pose1_goal ..."
     raw_input()
-    tutorial.go_to_pose_goal(tutorial.marker_pose, z_offset = 0.3, pose = False, num = 0)
+    tutorial.go_to_pose_goal(tutorial.marker_pose, z_offset = 0.3, pose = False, num = 1)
     
 
     print "============ Python tutorial demo complete!"
