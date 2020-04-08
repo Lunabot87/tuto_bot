@@ -25,6 +25,7 @@ class Add_scene_chair(object):
 
     rospy.Subscriber("marker_update", Pose, self.markerCB)
     rospy.Subscriber("replace", replace, self.replaceCB)
+    rospy.Subscriber("/object_pose_update", upobject, self.obupdateCB)
     # rospy.Subscriber("part_poses", part_pose, self.part_pose_upateCB)
 
     scene = moveit_commander.PlanningSceneInterface()
@@ -42,8 +43,17 @@ class Add_scene_chair(object):
     self.marker_pose.orientation.z = 0
     self.marker_pose.orientation.w = 1
 
-    self.part_name = PART_NAME
-    self.part_euler_pose = PART_EULER_POSE
+    self.part_name = PART_DIC.keys()
+    self.part_euler_pose = PART_DIC.values()
+
+  def obupdateCB(self,object_data):
+    update_array = []
+    number = self.part_name.index(object_data.name)
+
+    for pose, update in zip(self.part_euler_pose[number], object_data.pose):
+        update_array.append(pose + update)
+
+    self.part_euler_pose[number] = update_array
 
 
   def markerCB(self,pose):
@@ -91,7 +101,7 @@ class Add_scene_chair(object):
 
 
   def sendTF_object(self,child,pose,parent = "table"):
-    self.br.sendTransform((pose.position.x,pose.position.y,pose.position.z-0.8),
+    self.br.sendTransform((pose.position.x,pose.position.y,pose.position.z),
                          (pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w),
                          rospy.Time.now(),
                          child,
@@ -99,10 +109,15 @@ class Add_scene_chair(object):
 
 
   def TFupdateCB(self, TF):
-    for name in self.part_name:
-        pose = self.scene.get_object_poses([name])
-        pose = pose.values()
-        self.sendTF_object(name, pose[0])
+    # for name in self.part_name:
+    #     pose = self.scene.get_object_poses([name])
+    #     pose = pose.values()
+    #     self.sendTF_object(name, pose[0])
+
+    TF_data = Pose()
+
+    for name, pose in zip(self.part_name ,self.part_euler_pose):
+        self.sendTF_object(name, self.quter2Pose(pose))
 
 
   def add_part(self):
@@ -141,9 +156,18 @@ class Add_scene_chair(object):
 
     r = rospy.Rate(10)
 
+    # print "============ Press `Enter` to add a box to the planning scene ..."
+    # raw_input()
+
+    # self.attech_part()
+
     while not rospy.is_shutdown():
 
         r.sleep()
+
+
+  def attech_part(self):
+    self.scene.attach_mesh('left_part', name = 'suppor_front', filename = PATH+'suppor_front'+".STL")
 
 def main():
   try:

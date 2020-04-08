@@ -44,7 +44,7 @@ class tuto_chair_assembly(object):
         rospy.Subscriber("gripperCB", Bool, self.gripperCB)
 
         self.pub = rospy.Publisher('/gripper_close', std_msgs.msg.Bool, queue_size=10)
-        self.object_update_pub = rospy.Publisher('/object_pose_update', FloatArray, queue_size=10)
+        self.object_update_pub = rospy.Publisher('/object_pose_update', upobject, queue_size=10)
 
 
         self.ur5 = ur5_inv_kin_wrapper()
@@ -62,6 +62,9 @@ class tuto_chair_assembly(object):
         self.pose_qut = None
         self.number = 0
 
+        self.object_flag = 0
+        self.attach_part_name = ''
+
         self.move_pose_start = None
         self.move_pose_end = None
 
@@ -70,6 +73,8 @@ class tuto_chair_assembly(object):
         self.move_group.set_num_planning_attempts(10)
         self.move_group.set_max_velocity_scaling_factor(0.05)        # 0.1
         self.move_group.set_max_acceleration_scaling_factor(0.05)    # 0.1
+
+        rospy.Timer(rospy.Duration(0.01), self.object_updateCB)
 
     def go2pose_executeCB(self,data):
         self.move_group.execute(self.plan)
@@ -81,7 +86,7 @@ class tuto_chair_assembly(object):
         self.go2pose_plan(target)
 
     def gripperCB(self,gripper):
-        self.gripper_control(gripper, 'support_front')
+        self.gripper_control(gripper.data, 'support_front')
 
 
     def object_pose(self, pose, x_offset = 0, y_offset = 0, z_offset = 0):
@@ -117,7 +122,7 @@ class tuto_chair_assembly(object):
         current_pose = self.move_group.get_current_pose()
         planning_frame = self.move_group.get_planning_frame()
 
-        print current_pose
+        print current_pose.pose.position
 
         #pose_xyz, pose_qut = self.object_tf(self.marker_pose, x_offset = x_offset, y_offset = y_offset, z_offset = z_offset)
 
@@ -132,15 +137,11 @@ class tuto_chair_assembly(object):
 
         self.pose_qut = self.object_rot(temp_qut)
 
-
-
         # (temp_xyz, temp_qut) = self.listener.lookupTransform('/real_base_link', target.name, rospy.Time(0))
 
         # self.pose_xyz = self.object_pose(temp_xyz, z_offset = target.z_offset)
 
         # self.pose_qut = self.object_rot(temp_qut)
-
-
 
         # self.br.sendTransform(pose_xyz, pose_qut,
         #                      rospy.Time.now(),
@@ -148,13 +149,13 @@ class tuto_chair_assembly(object):
         #                      "real_base_link"
         #                      )
 
-        self.move_group.clear_pose_targets()
 
         self.pose_target_list = self.ur5.solve_and_sort([self.pose_xyz[0],self.pose_xyz[1],self.pose_xyz[2]],self.pose_qut,current_joint)
 
         print self.pose_target_list[:,self.number]
 
         self.joint_target(self.number) if target.pose_select is not True else self.pose_target()
+
 
     def joint_target(self,num):
 
@@ -176,6 +177,8 @@ class tuto_chair_assembly(object):
 
         self.plan = self.move_group.plan()
 
+        self.move_group.clear_pose_targets()
+
     def pose_target(self):
 
         pose_goal = geometry_msgs.msg.Pose()
@@ -190,6 +193,8 @@ class tuto_chair_assembly(object):
         self.move_group.set_pose_target(pose_goal)
 
         self.plan = self.move_group.plan()
+
+        self.move_group.clear_pose_targets()
 
 
     def TF_real_eef_transform(self, eef, child, parent, pose):
@@ -211,33 +216,81 @@ class tuto_chair_assembly(object):
         return temp_xyz, temp_qut
 
     def gripper_control(self, gripper, name):
-        self.pub.publish(gripper)
+        gripper_command = Bool()
+        gripper_command.data = gripper
 
-        if gripper.data is True: #close
+        self.pub.publish(gripper_command)
+
+        if gripper is True: #close
             grasping_group = 'tuto_hand'
             touch_links = self.robot.get_link_names(group=grasping_group)
+
+            print touch_links
+
             self.scene.attach_mesh(self.eef_link, name = name, filename = PATH+name+".STL", touch_links=touch_links)
             self.move_pose_start = self.move_group.get_current_pose()
+            self.object_flag = 1
+            self.attach_part_name = name
         else:
             self.scene.remove_attached_object(self.eef_link, name=name)
+            self.object_flag = 0
+
+
+
+    def object_updateCB(self, msgs):
+        name = self.attach_part_name
+        if self.object_flag is not 0:
             self.move_pose_end = self.move_group.get_current_pose()
-            self.object_update()
+
+            update_data = upobject()
+            objcet_update_pose = []
+            objcet_update_pose.append(self.move_pose_end.pose.position.x - self.move_pose_start.pose.position.x)
+            objcet_update_pose.append(self.move_pose_end.pose.position.y - self.move_pose_start.pose.position.y)
+            objcet_update_pose.append(self.move_pose_end.pose.position.z - self.move_pose_start.pose.position.z)
+            qut_end = euler_from_quaternion([self.move_pose_end.pose.orientation.x, self.move_pose_end.pose.orientation.y, self.move_pose_end.pose.orientation.z, self.move_pose_end.pose.orientation.w])
+            qut_start = euler_from_quaternion([self.move_pose_start.pose.orientation.x, self.move_pose_start.pose.orientation.y, self.move_pose_start.pose.orientation.z, self.move_pose_start.pose.orientation.w])
+            for start, end in zip(qut_start, qut_end):
+                objcet_update_pose.append(end - start)
+
+            update_data.name = name
+            update_data.pose = objcet_update_pose
 
 
-    def object_update(self):
-        objcet_update_pose = []
-        objcet_update_pose.append(self.move_pose_end.position.x - self.move_pose_start.position.x)
-        objcet_update_pose.append(self.move_pose_end.position.y - self.move_pose_start.position.y)
-        objcet_update_pose.append(self.move_pose_end.position.z - self.move_pose_start.position.z)
-        qut_end = euler_from_quaternion([self.move_pose_end.orientation.x, self.move_pose_end.orientation.y, self.move_pose_end.orientation.z, self.move_pose_end.orientation.w])
-        qut_start = euler_from_quaternion([self.move_pose_start.orientation.x, self.move_pose_start.orientation.y, self.move_pose_start.orientation.z, self.move_pose_start.orientation.w])
-        for start, end in zip(qut_start, qut_end):
-            objcet_update_pose.append(end - start)
 
-        self.object_pose_update.publish(objcet_update_pose)
+            self.object_update_pub.publish(update_data)
 
 
+    def insert_part(self, command):
+        gripper = Bool()
+        target_part = target()
+        target_part.pose = command.child_part.pose
+        target_part.name = command.child_part.name
+        target_part.z_offset = 0.3
+        target_part.pose_select = False
+        target_num = 0
 
+        plan = self.go2pose_plan(target_part)
+        self.move_group.execute(plan)
+
+        target_part.z_offset -= 0.18
+        plan = self.go2pose_plan(target_part)
+        self.move_group.execute(plan)
+
+        gripper_control(True, target_part.name)
+
+        target_part.pose = command.parent_part.pose
+        target_part.z_offset = 0.3
+
+        plan = self.go2pose_plan(target_part)
+        self.move_group.execute(plan)
+
+        self.forse_control()
+
+        gripper_control(False, target_part.name)
+
+
+
+    # def move_part(self):
 
 
 

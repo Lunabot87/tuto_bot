@@ -442,8 +442,6 @@ Visualization Manager:
           Value: false
         forearm_link:
           Value: false
-        item:
-          Value: false
         left_inner_finger:
           Value: false
         left_inner_finger_pad:
@@ -482,6 +480,8 @@ Visualization Manager:
           Value: true
         table:
           Value: false
+        target:
+          Value: false
         tool0:
           Value: false
         tool0_controller:
@@ -513,8 +513,6 @@ Visualization Manager:
             bar3:
               {}
             bar4:
-              {}
-            item:
               {}
             left_part:
               {}
@@ -554,6 +552,8 @@ Visualization Manager:
               {}
             support_front:
               {}
+            target:
+              {}
       Update Interval: 0
       Value: true
   Enabled: true
@@ -572,7 +572,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 7.281972885131836
+      Distance: 2.3045871257781982
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -587,10 +587,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8247960805892944
+      Pitch: 0.5047959685325623
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 0.2603852450847626
+      Yaw: 0.2753811180591583
     Saved: ~
 Window Geometry:
   Displays:
