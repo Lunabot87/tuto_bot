@@ -42,9 +42,6 @@ class Add_scene_chair(object):
     self.marker_pose.orientation.z = 0
     self.marker_pose.orientation.w = 1
 
-    # self.part_name = ["support_front", "support_back", "right_part", "left_part", "back_plate"]
-    # self.part_euler_pose = [[0.55,0.30,0,0,0,1.57],[0.55,-0.30,0,0,0,1.57],[0,0,1.5,0,0,0],[0,0,2,0,0,0],[0,0,2.0,0,0,0]]
-
     self.part_name = PART_NAME
     self.part_euler_pose = PART_EULER_POSE
 
@@ -92,12 +89,20 @@ class Add_scene_chair(object):
                          child,
                          parent)
 
-  # def part_pose_upateCB(self, data):
-  #   print "update +"
+
+  def sendTF_object(self,child,pose,parent = "table"):
+    self.br.sendTransform((pose.position.x,pose.position.y,pose.position.z-0.8),
+                         (pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w),
+                         rospy.Time.now(),
+                         child,
+                         parent)
+
 
   def TFupdateCB(self, TF):
-    for name, pose in zip(self.part_name, self.part_euler_pose):
-        self.sendTF(name, self.quter2Pose(pose))
+    for name in self.part_name:
+        pose = self.scene.get_object_poses([name])
+        pose = pose.values()
+        self.sendTF_object(name, pose[0])
 
 
   def add_part(self):

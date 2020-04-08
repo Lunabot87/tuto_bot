@@ -51,6 +51,7 @@ add_message_files(
    FILES
    replace.msg
    target.msg
+   FloatArray.msg
 )
 
 ## Generate services in the 'srv' folder
