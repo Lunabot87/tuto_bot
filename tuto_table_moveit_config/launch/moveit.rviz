@@ -458,6 +458,8 @@ Visualization Manager:
           Value: false
         real_ee_link:
           Value: true
+        real_target:
+          Value: true
         right_inner_finger:
           Value: false
         right_inner_finger_pad:
@@ -481,7 +483,7 @@ Visualization Manager:
         table:
           Value: false
         target:
-          Value: false
+          Value: true
         tool0:
           Value: false
         tool0_controller:
@@ -547,12 +549,12 @@ Visualization Manager:
                                       right_inner_finger_pad:
                                         {}
             right_part:
-              {}
+              target:
+                real_target:
+                  {}
             support_back:
               {}
             support_front:
-              {}
-            target:
               {}
       Update Interval: 0
       Value: true
@@ -587,10 +589,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5047959685325623
+      Pitch: 0.8947955965995789
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 0.2753811180591583
+      Yaw: 5.603565692901611
     Saved: ~
 Window Geometry:
   Displays:

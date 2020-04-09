@@ -53,6 +53,9 @@ add_message_files(
    target.msg
    FloatArray.msg
    upobject.msg
+   parent.msg
+   child.msg
+   tuto_command.msg
 )
 
 ## Generate services in the 'srv' folder
