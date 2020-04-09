@@ -43,17 +43,25 @@ class Add_scene_chair(object):
     self.marker_pose.orientation.z = 0
     self.marker_pose.orientation.w = 1
 
+
+    self.add_part_pose = PART_EULER_POSE
+    self.add_part_name = PART_NAME
+
     self.part_name = PART_DIC.keys()
     self.part_euler_pose = PART_DIC.values()
 
+
   def obupdateCB(self,object_data):
     update_array = []
-    number = self.part_name.index(object_data.name)
 
-    for pose, update in zip(self.part_euler_pose[number], object_data.pose):
-        update_array.append(pose + update)
+    for part_name in object_data.name:
 
-    self.part_euler_pose[number] = update_array
+        number = self.part_name.index(part_name)
+
+        for pose, update in zip(self.part_euler_pose[number], object_data.pose):
+            update_array.append(pose + update)
+
+        self.part_euler_pose[number] = update_array
 
 
   def markerCB(self,pose):
@@ -124,7 +132,7 @@ class Add_scene_chair(object):
 
     select = 'n'
 
-    for name, pose, count in zip(self.part_name, self.part_euler_pose, range(6)):
+    for name, pose, count in zip(self.add_part_name, self.add_part_pose, range(6)):
         
         print "Add part : ",name,"   use marker pose? (y/n) default : n"
         select = raw_input()
@@ -142,7 +150,7 @@ class Add_scene_chair(object):
     
         self.scene.add_mesh(item_name, item, PATH+name+".STL")
 
-        self.sendTF(child = name, pose = item.pose)
+        self.sendTF(child = name, pose = self.quter2Pose(PART_DIC[name]))
 
     plane_pose = geometry_msgs.msg.PoseStamped()
     plane_pose.header.frame_id = "table"
