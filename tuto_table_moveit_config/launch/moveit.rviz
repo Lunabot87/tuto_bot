@@ -442,6 +442,8 @@ Visualization Manager:
           Value: false
         forearm_link:
           Value: false
+        item:
+          Value: false
         left_inner_finger:
           Value: false
         left_inner_finger_pad:
@@ -516,6 +518,8 @@ Visualization Manager:
               {}
             bar4:
               {}
+            item:
+              {}
             left_part:
               {}
             real_base_link:
@@ -589,10 +593,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8947955965995789
+      Pitch: 0.839796245098114
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 5.603565692901611
+      Yaw: 6.103564739227295
     Saved: ~
 Window Geometry:
   Displays:

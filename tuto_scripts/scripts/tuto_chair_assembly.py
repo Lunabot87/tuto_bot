@@ -42,6 +42,7 @@ class tuto_chair_assembly(object):
         rospy.Subscriber("path_update", Int16, self.path_updateCB)
         rospy.Subscriber("go2pose", target, self.go2poseCB)
         rospy.Subscriber("gripperCB", Bool, self.gripperCB)
+        rospy.Subscriber("tuto_command", tuto_command, self.tuto_commandCB)
 
         self.pub = rospy.Publisher('/gripper_close', std_msgs.msg.Bool, queue_size=10)
         self.object_update_pub = rospy.Publisher('/object_pose_update', upobject, queue_size=10)
@@ -79,14 +80,27 @@ class tuto_chair_assembly(object):
         self.real_target_flag = 0
         self.target_pose = None
         self.time_count = 0
+        self.grip_name = ''
         self.grip_object_xyz = [0,0,0] 
         self.grip_object_qut = [0,0,0]
+
+        self.mode = ""
 
         self.move_group.set_planner_id("RRTConnectkConfigDefault")
         self.move_group.set_planning_time(5.0)
         self.move_group.set_num_planning_attempts(10)
         self.move_group.set_max_velocity_scaling_factor(0.05)        # 0.1
         self.move_group.set_max_acceleration_scaling_factor(0.05)    # 0.1
+
+
+    def tuto_commandCB(self, command):
+
+        self.mode = ""
+
+        if command.mode is "insert":
+            self.insert(command)
+        elif command.mode is "move":
+            self.move_part(commad)
 
 
 
@@ -123,8 +137,8 @@ class tuto_chair_assembly(object):
         xyz = [target.pose[0] + target.x_offset, target.pose[1] + target.y_offset, target.pose[2] + target.z_offset]
         qut = quaternion_from_euler(target.pose[3], target.pose[4], target.pose[5])
         
-        print xyz
-        print qut
+        # print xyz
+        # print qut
 
         return xyz, qut
 
@@ -140,7 +154,7 @@ class tuto_chair_assembly(object):
 
         #pose_xyz, pose_qut = self.object_tf(self.marker_pose, x_offset = x_offset, y_offset = y_offset, z_offset = z_offset)
 
-        if target.name is not '':
+        if self.mode is not 'move':
 
             (temp_xyz, temp_qut) = self.listener.lookupTransform('/real_base_link', target.name, rospy.Time(0))
 
@@ -161,7 +175,7 @@ class tuto_chair_assembly(object):
 
         self.pose_target_list = self.ur5.solve_and_sort([self.pose_xyz[0],self.pose_xyz[1],self.pose_xyz[2]],self.pose_qut,current_joint)
 
-        print self.pose_target_list[:,self.number]
+        #print self.pose_target_list[:,self.number]
 
         self.joint_target(self.number) if target.pose_select is not True else self.pose_target()
 
@@ -176,7 +190,7 @@ class tuto_chair_assembly(object):
 
         #pose_xyz, pose_qut = self.object_tf(self.marker_pose, x_offset = x_offset, y_offset = y_offset, z_offset = z_offset)
 
-        if target.name is not '':
+        if self.mode is not 'move':
 
             (temp_xyz, temp_qut) = self.listener.lookupTransform('/real_base_link', target.name, rospy.Time(0))
 
@@ -191,16 +205,29 @@ class tuto_chair_assembly(object):
 
         self.pose_target_list = self.ur5.solve_and_sort([self.pose_xyz[0],self.pose_xyz[1],self.pose_xyz[2]],self.pose_qut,current_joint)
 
-        print self.pose_target_list[:,self.number]
+        #print self.pose_target_list[:,self.number]
 
         self.joint_target(self.number) if target.pose_select is not True else self.pose_target()
+
+
+    def up_to_move(self, offset):
+        current_pose = self.move_group.get_current_pose()
+        planning_frame = self.move_group.get_planning_frame()
+
+        current_pose.position.z += offset
+
+        self.move_group.set_pose_target(current_pose)
+
+        self.plan = self.move_group.plan()
+
+        self.move_group.clear_pose_targets()
 
 
     def joint_target(self,num):
 
         pose_target = self.pose_target_list[:,num]
 
-        print "target joint : ", pose_target
+        #print "target joint : ", pose_target
 
         joint_goal = self.move_group.get_current_joint_values()
 
@@ -262,6 +289,7 @@ class tuto_chair_assembly(object):
 
         if gripper is True: #close
             self.attach_part_name = []
+            self.grip_name = name
 
             grasping_group = 'tuto_hand'
             touch_links = self.robot.get_link_names(group=grasping_group)
@@ -275,25 +303,32 @@ class tuto_chair_assembly(object):
 
             self.move_pose_start = self.move_group.get_current_pose()
 
-            print "Aaaa" , self.move_pose_start
+            time.sleep(3)
 
             self.grip_object_xyz, self.grip_object_qut = self.listener.lookupTransform( "/real_ee_link", name, rospy.Time(0))
 
-            print "Aaaa" , self.grip_object_xyz
+            # print "Aaaa" , self.grip_object_xyz
 
             self.object_flag = 1
             self.target_flag = 1
 
             #print "griper-model    ",  self.grip_object_xyz, euler_from_quaternion([self.grip_object_qut[0],self.grip_object_qut[1],self.grip_object_qut[2],self.grip_object_qut[3]])
-
-
             
 
         else:
-            self.scene.remove_attached_object(self.eef_link, name=name)
+            if self.grip_name in self.asb_list:
+                for name in self.asb_list:
+                    self.scene.remove_attached_object(self.eef_link, name=name)
+
+            else:
+                self.scene.remove_attached_object(self.eef_link, name=self.grip_name)
             # self.object_update()
+
+            time.sleep(3)
+
             self.object_flag = 0
             self.target_flag = 0
+            self.grip_name = ''
 
 
 
@@ -323,6 +358,8 @@ class tuto_chair_assembly(object):
 
 
     def insert_part(self, command):
+        self.mode = "insert"
+
         self.target_pose = command.parent_part.target_pose
         self.target_name = command.parent_part.name
 
@@ -344,11 +381,14 @@ class tuto_chair_assembly(object):
 
         self.gripper_control(True, target_part.name)
 
-        time.sleep(3)
-
         target_part.z_offset = 0.3
 
         self.go2pose_plan(target_part)
+
+        # self.up_to_move(0.3)
+
+        print "move_up"
+        raw_input()
 
         self.move_group.execute(self.plan)
 
@@ -358,36 +398,14 @@ class tuto_chair_assembly(object):
 
         self.go2pose_plan_nrot(target_part)
 
-        # pose1 = self.quter2Pose((self.grip_object_xyz + self.grip_object_qut))
-
-        # self.sendTF_object('/real_target', pose1, parent = "/target")
-
-        # time.sleep(2)
-
-
-        # xyz, qut = self.listener.lookupTransform('/real_base_link', "/real_target", rospy.Time(0))
-
-        # self.pose_xyz = self.object_pose(xyz)
-
-        # euler = euler_from_quaternion([qut[0],qut[1],qut[2],qut[3]])
-
-        # self.pose_qut = quaternion_from_euler(euler[0],euler[0],euler[0])
-
-        # current_joint = self.move_group.get_current_joint_values()
-
-        # self.pose_target_list = self.ur5.solve_and_sort([self.pose_xyz[0],self.pose_xyz[1],self.pose_xyz[2]],self.pose_qut, current_joint)
-
-        # print self.pose_target_list[:,self.number]
-
-        # self.joint_target(self.number) if target.pose_select is not True else self.pose_target()
-
-        print "teate"
+        print "move_goal"
         raw_input()
 
         self.move_group.execute(self.plan)
-        self.gripper_control(False, target_part.name)
 
         #self.gripper_control(False, target_part.name)
+
+        self.gripper_control(False, target_part.name)
 
         if command.parent_part.name in self.asb_list :
             self.asb_list.append(command.child_part.name)
@@ -395,6 +413,63 @@ class tuto_chair_assembly(object):
         else:
             self.asb_list.append(command.parent_part.name)
             self.asb_list.append(command.child_part.name)
+
+        print "end"
+        raw_input()
+
+
+
+    def move_part(self, command):
+        self.mode = "move"
+        self.target_name = 'world'
+
+        gripper = Bool()
+        target_part = target()
+        target_part.pose = command.child_part.pose
+        target_part.name = command.child_part.name
+        target_part.z_offset = 0.3
+        target_part.pose_select = False
+        target_num = self.number
+
+        self.go2pose_plan(target_part)
+        self.move_group.execute(self.plan)
+
+        target_part.z_offset -= 0.16
+        self.go2pose_plan(target_part)
+        self.move_group.execute(self.plan)
+
+        self.gripper_control(True, target_part.name)
+
+        target_part.z_offset = 0.3
+        self.go2pose_plan(target_part)
+
+        print "move_up"
+        raw_input()
+
+        self.move_group.execute(self.plan)
+
+        print "plan"
+        raw_input()
+
+        target_part.pose = command.child_part.move_pose
+
+        self.go2pose_plan(target_part)
+
+        print "move"
+        raw_input()
+
+        self.move_group.execute(self.plan)
+
+        target_part.z_offset -= 0.16
+        self.go2pose_plan(target_part)
+        self.move_group.execute(self.plan)
+
+
+        self.gripper_control(False, target_part.name)
+
+
+        print "end"
+        raw_input()
 
 
 
@@ -433,8 +508,6 @@ class tuto_chair_assembly(object):
                          child,
                          parent)
 
-    # def move_part(self):
-
 
 
 
@@ -465,6 +538,9 @@ class tuto_chair_assembly(object):
         return quter2Pose
 
 
+    # def test(self):
+    #     self.scene.remove_attached_object(self.eef_link, name='support_front')
+
 
 
 
@@ -484,18 +560,37 @@ def main():
 
     command.parent_part.name = "right_part"
     command.parent_part.pose = [0,0,0.03, 0, 0, 1.5707]
-    command.parent_part.target_pose = [0.146,0,0.14,1.5707,1.5707,1.5707]
+    command.parent_part.target_pose = [0.146,0,0.12,1.5707,1.5707,1.5707]
 
     command.child_part.name = "support_front"
     command.child_part.pose = [0.50,0.40,0.03,0,0,1.57]
+
+
+    0.106 , 0.128 ,0.025
+
+
+
+    move_c = tuto_command()
+
+    move_c.mode = "insert"
+
+    move_c.child_part.name = "right_part"
+    move_c.child_part.pose = [0.106 , 0.128 ,0.03, 0, 0, 0] #girp pose
+    move_c.child_part.move_pose = [0.272084772587, 0.460300326347, 0.0250000003725, 0, 0, 0]
+
 
 
     tutorial = tuto_chair_assembly()
     print "============ Press `Enter` to go_to_pose1_goal ..."
     raw_input()
 
-
+    #tutorial.test()
     tutorial.insert_part(command)
+
+    print "============ Press `Enter` to move..."
+    raw_input()
+
+    tutorial.move_part(move_c)
 
     #tutorial.go2pose_plan(ttarget)
 
