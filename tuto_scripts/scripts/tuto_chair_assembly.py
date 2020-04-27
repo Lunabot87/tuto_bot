@@ -16,6 +16,9 @@ from tf import *
 from ur5_inv_kin_wrapper import ur5_inv_kin_wrapper
 from tuto_init import *
 
+from multiprocessing import Process, Queue
+from threading import Thread
+
 #import basic_interactive
 
 
@@ -51,10 +54,11 @@ class tuto_chair_assembly(object):
         # rospy.Timer(rospy.Duration(0.01), self.real_targetTFCB)
         rospy.Timer(rospy.Duration(1), self.object_updateCB)
 
-
         self.ur5 = ur5_inv_kin_wrapper()
         self.listener = TransformListener()
         self.br = TransformBroadcaster()
+
+        th1 = Thread(target=Process)
 
         self.scene = scene
         self.robot = robot
@@ -86,11 +90,13 @@ class tuto_chair_assembly(object):
 
         self.mode = ""
 
-        self.move_group.set_planner_id("RRTConnectkConfigDefault")
+        self.move_group.set_planner_id("KPIECEkConfigDefault")
         self.move_group.set_planning_time(5.0)
         self.move_group.set_num_planning_attempts(10)
         self.move_group.set_max_velocity_scaling_factor(0.05)        # 0.1
         self.move_group.set_max_acceleration_scaling_factor(0.05)    # 0.1
+
+
 
 
     def tuto_commandCB(self, command):
@@ -150,7 +156,8 @@ class tuto_chair_assembly(object):
         current_pose = self.move_group.get_current_pose()
         planning_frame = self.move_group.get_planning_frame()
 
-        print current_pose.pose.position
+        time.sleep(1)
+
 
         #pose_xyz, pose_qut = self.object_tf(self.marker_pose, x_offset = x_offset, y_offset = y_offset, z_offset = z_offset)
 
@@ -186,7 +193,7 @@ class tuto_chair_assembly(object):
         current_pose = self.move_group.get_current_pose()
         planning_frame = self.move_group.get_planning_frame()
 
-        print current_pose.pose.position
+        time.sleep(1)
 
         #pose_xyz, pose_qut = self.object_tf(self.marker_pose, x_offset = x_offset, y_offset = y_offset, z_offset = z_offset)
 
@@ -214,7 +221,7 @@ class tuto_chair_assembly(object):
         current_pose = self.move_group.get_current_pose()
         planning_frame = self.move_group.get_planning_frame()
 
-        current_pose.position.z += offset
+        current_pose.pose.position.z += offset
 
         self.move_group.set_pose_target(current_pose)
 
@@ -242,6 +249,8 @@ class tuto_chair_assembly(object):
         self.move_group.set_joint_value_target(joint_goal)
 
         self.plan = self.move_group.plan()
+
+        print self.plan
 
         self.move_group.clear_pose_targets()
 
@@ -381,11 +390,13 @@ class tuto_chair_assembly(object):
 
         self.gripper_control(True, target_part.name)
 
+        #print self.move_group.get_current_pose()
+
         target_part.z_offset = 0.3
 
         self.go2pose_plan(target_part)
 
-        # self.up_to_move(0.3)
+        #self.up_to_move(0.3)
 
         print "move_up"
         raw_input()
@@ -414,6 +425,8 @@ class tuto_chair_assembly(object):
             self.asb_list.append(command.parent_part.name)
             self.asb_list.append(command.child_part.name)
 
+        print self.move_group.get_current_pose()
+
         print "end"
         raw_input()
 
@@ -434,14 +447,16 @@ class tuto_chair_assembly(object):
         self.go2pose_plan(target_part)
         self.move_group.execute(self.plan)
 
-        target_part.z_offset -= 0.16
+        target_part.z_offset -= 0.14
         self.go2pose_plan(target_part)
         self.move_group.execute(self.plan)
 
         self.gripper_control(True, target_part.name)
 
-        target_part.z_offset = 0.3
-        self.go2pose_plan(target_part)
+        # target_part.z_offset = 0.3
+        # self.go2pose_plan(target_part)
+
+        self.up_to_move(0.3)
 
         print "move_up"
         raw_input()
@@ -560,7 +575,7 @@ def main():
 
     command.parent_part.name = "right_part"
     command.parent_part.pose = [0,0,0.03, 0, 0, 1.5707]
-    command.parent_part.target_pose = [0.146,0,0.12,1.5707,1.5707,1.5707]
+    command.parent_part.target_pose = [0.146,0,0.11,1.5707,1.5707,1.5707]
 
     command.child_part.name = "support_front"
     command.child_part.pose = [0.50,0.40,0.03,0,0,1.57]
@@ -575,8 +590,8 @@ def main():
     move_c.mode = "insert"
 
     move_c.child_part.name = "right_part"
-    move_c.child_part.pose = [0.106 , 0.128 ,0.03, 0, 0, 0] #girp pose
-    move_c.child_part.move_pose = [0.272084772587, 0.460300326347, 0.0250000003725, 0, 0, 0]
+    move_c.child_part.pose = [0.106 , 0.128 ,0.04, 0, 0, 0] #girp pose
+    move_c.child_part.move_pose = [0.272084772587, 0.460300326347, 0.34, 0, 0, 0]
 
 
 
@@ -593,6 +608,8 @@ def main():
     tutorial.move_part(move_c)
 
     #tutorial.go2pose_plan(ttarget)
+
+    #tutorial.up_to_move(0.3)
 
     rospy.spin()
     
