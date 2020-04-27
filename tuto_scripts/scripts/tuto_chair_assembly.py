@@ -245,6 +245,8 @@ class tuto_chair_assembly(object):
         joint_goal[4] = pose_target[4]
         joint_goal[5] = pose_target[5]
 
+        self.move_group.set_start_state(self.robot.get_current_state())
+
 
         self.move_group.set_joint_value_target(joint_goal)
 
