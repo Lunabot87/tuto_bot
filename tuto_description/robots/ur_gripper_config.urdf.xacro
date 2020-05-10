@@ -156,13 +156,13 @@
     </joint>
 
 
-    <link name="world"/>
+    <!-- <link name="world"/>
 
     <joint name="world_table" type="fixed">
       <parent link="world" />
       <child link="table" />
       <origin xyz="0 0.0 0.8" rpy="0.0 0.0 0" />
-    </joint>
+    </joint> -->
 
     <joint name="ur_real_ee_fixed_joint" type="fixed">
       <parent link="ee_link" />

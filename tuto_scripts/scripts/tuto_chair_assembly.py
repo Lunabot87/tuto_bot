@@ -250,9 +250,11 @@ class tuto_chair_assembly(object):
 
         self.move_group.set_joint_value_target(joint_goal)
 
+        print type(self.move_group.plan())
+
         self.plan = self.move_group.plan()
 
-        print self.plan
+        #print self.plan
 
         self.move_group.clear_pose_targets()
 
@@ -427,7 +429,7 @@ class tuto_chair_assembly(object):
             self.asb_list.append(command.parent_part.name)
             self.asb_list.append(command.child_part.name)
 
-        print self.move_group.get_current_pose()
+        # print self.move_group.get_current_pose()
 
         print "end"
         raw_input()
