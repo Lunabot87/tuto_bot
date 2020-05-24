@@ -5,17 +5,17 @@
   <!--config-->
   <xacro:arg name="ur_enabled" default="true"/>
   <xacro:arg name="gripper_enabled" default="true"/>
+  <xacro:arg name="realsense_enabled" default="true"/>
 
   <xacro:property name="M_PI" value="3.14159"/>
 
   <!--components-->
   <xacro:include filename="$(find ur_e_description)/urdf/ur5e.urdf.xacro" />
   <xacro:include filename="$(find robotiq_2f_85_gripper_visualization)/urdf/robotiq_arg2f_85_model_macro.xacro" />	
+  <xacro:include filename="$(find realsense2_description)/urdf/_d435.urdf.xacro" />
   <xacro:property name="base_x_size" value="0.76" />
   <xacro:property name="base_y_size" value="0.46" />
   <xacro:property name="base_z_size" value="0.55" />
-
-
 
   <xacro:if value="$(arg ur_enabled)">
 
@@ -186,5 +186,23 @@
       <xacro:robotiq_arg2f_85 prefix=""/>
     </xacro:if>
   </xacro:if>
+
+
+    <!-- camera -->
+
+<!--   <xacro:if value="$(arg realsense_enabled)">
+
+  <link name="realsense_base_link" />
+
+  <joint name="realsense_mount_fixed_joint" type="fixed">
+    <parent link="real_ee_link"/>
+    <child link="realsense_base_link"/>
+    <origin xyz="0 0.045 0.05" rpy="${-M_PI/2} 0 0"/>
+  </joint>
+
+  <xacro:sensor_d435 parent="realsense_base_link" name="realsense">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:sensor_d435>
+  </xacro:if> -->
 
 </robot>
